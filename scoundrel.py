@@ -4,15 +4,35 @@ Created on Tue Feb 18 17:22:59 2025
 
 @author: sbwiz
 SCOUNDREL
+
+view README for rules.
 """
 
-
+#Import random for shuffling main deck
 import random
 
 
 class Card:
     
     def __init__(self, val, suit):
+        '''
+        initializes Card object.
+        self.attached represents card objects attached to self.
+
+        Parameters
+        ----------
+        val : int
+            from 2-15, represents the value of the card.
+            11 represents jack and so on.
+        suit : string/char
+            represents suit of the card, with J standing in for joker.
+
+        Returns
+        -------
+        None.
+
+        '''
+        
         self.value = int(val)
         self.suit = suit
         self.attached = []
@@ -24,6 +44,14 @@ class Card:
     #     self.suit = suit
     
     def __str__(self):
+        '''
+
+        Returns
+        -------
+        output : string
+            string representation of the card.
+
+        '''
         output = ""
         if self.value <= 10:
             output = str(self.value)+self.suit
@@ -45,12 +73,38 @@ class Card:
         return output
     
     def attach(self, card):
+        '''
+
+        Parameters
+        ----------
+        card : Card object
+            attaches a card to self. In a similar vain to placing a 9H below 10C in Solitaire FE.
+
+        Returns
+        -------
+        None.
+
+        '''
         self.attached.append(card)
 
 
 class Deck:
     
     def __init__(self, main):
+        '''
+        self.cards is the Python list of cards in self.
+
+        Parameters
+        ----------
+        main : Boolean
+            describes whether the deck is the main deck or not.
+            acts as a flag for multiple properties.
+
+        Returns
+        -------
+        None.
+
+        '''
         self.cards = []
         Rsuits = ["♥","♦"]
         Bsuits = ["♠","♣"]
@@ -66,12 +120,23 @@ class Deck:
                 self.shuffle()
     
     def __str__(self):
+        '''
+        
+        Returns
+        -------
+        string
+            returns string format of this object (list of cards).
+
+        '''
         output=""
         for card in self.cards:
             output += str(card)+", "
         return output[:len(output)-2]
     
     def shuffle(self):
+        '''
+        shuffles the deck using random.shuffle
+        '''
         random.shuffle(self.cards)
         print("Shuffling...")
     
@@ -79,26 +144,73 @@ class Deck:
 class Game:
     
     def __init__(self):
+        '''
+        initializes Game object.
+        self.deck is the Deck object used as the main deck.
+        self.discard is the discard pile. Can be used to add achievements for sequences of moves.
+        self.equipment is a Deck object containing at most one Card, the current equipped diamond card.
+        self.health is an integer that ends the game if 0 is ever reached. Caps at 20.
+        self.played is a Deck displaying the current room of at most 4 cards.
+        self.can_run is an int that, when == 2, allows the ability for the player to reshuffle.
+        self.can_heal = True by default. Allows player to use heart cards.
+
+        Returns
+        -------
+        None.
+
+        '''
         self.deck = Deck(True)
         self.discard = Deck(False)
         self.equipment = Deck(False)
         self.health = 20
         self.played = Deck(False)
         self.can_run = 2
-        self.turn()
         self.can_heal = True
+        self.turn()
         
     def deal(self):
+        '''
+        Deals at most 4 cards into the current room.
+
+        Returns
+        -------
+        None.
+
+        '''
         while len(self.played.cards) < 4 and len(self.deck.cards) > 0:
             self.can_heal = True
             self.played.cards.append(self.deck.cards.pop(0))
     
     def __str__(self):
+        '''
+        
+
+        Returns
+        -------
+        string
+            formatted string representation of a current turn.
+
+        '''
         return "Cards remaining in Deck: "+str(len(self.deck.cards))+"          Health: "+str(self.health)+"\n\
            ..... "+str(self.played)+" .....\n\
              .......... "+str(self.equipment)+" .........."
     
     def translate(self, inp):
+        '''
+        Translates user input to be understood by the Card and Deck classes.
+        More can be added to this function to accomodate for various inputs.
+
+        Parameters
+        ----------
+        inp : string
+            user inputted string.
+
+        Returns
+        -------
+        out : string
+            formatted string that can be understood by other classes.
+
+        '''
         inp = inp.lower()
         out = ""
         if inp[0] == 'j' and inp[1] != 'o':
@@ -124,6 +236,14 @@ class Game:
         return out
     
     def run(self):
+        '''
+        If ables, allows player to reshuffle current room.
+
+        Returns
+        -------
+        None.
+
+        '''
         self.played.shuffle()
         while len(self.played.cards) > 0:
             self.deck.cards.append(self.played.cards.pop(0))
@@ -131,6 +251,19 @@ class Game:
         print("Successfully Ran!")
     
     def heal(self, val):
+        '''
+        increasese player health to at most 20.
+
+        Parameters
+        ----------
+        val : int
+            potential health to be added to self.health.
+
+        Returns
+        -------
+        None.
+
+        '''
         self.health += val
         if self.health > 20:
             self.health = 20
@@ -138,6 +271,19 @@ class Game:
         print("Healed to "+str(self.health)+" health")
         
     def equip(self, equipped):
+        '''
+        Adds a card to self.equipment and discards previous equipment Card if any.
+
+        Parameters
+        ----------
+        equipped : card
+            diamond card to be equipped.
+
+        Returns
+        -------
+        None.
+
+        '''
         if len(self.equipment.cards) > 0:
             self.discard.cards.append(self.equipment.cards.pop(0))
             print("Discarded "+str(self.discard.cards[-1]))
@@ -145,6 +291,15 @@ class Game:
         print("Equipped "+str(self.equipment.cards[0]))
         
     def shop(self):
+        '''
+        opens the shop if joker is used. series of if statements to account for various situations.
+        Should be changed to switch statement potentially.
+
+        Returns
+        -------
+        None.
+
+        '''
         do_it = input("shoppp... yessss...?? (y/n): ").lower()
         if do_it == 'y':
             if len(self.equipment.cards) > 0:
@@ -167,6 +322,19 @@ class Game:
         print("Farewelll...")
         
     def fight(self, mob):
+        '''
+        Series of if else statements to represent flow of logic for interacting with a black suited card.
+
+        Parameters
+        ----------
+        mob : Card
+            the interacted black card.
+
+        Returns
+        -------
+        None.
+
+        '''
         if len(self.equipment.cards) > 0:
             bare_handed = input("Fight bare handed? (y/n): ").lower()
             if bare_handed != "y":
@@ -207,6 +375,14 @@ class Game:
         
     
     def turn(self):
+        '''
+        represents the flow of logic at the start of each turn. recurses using self.gameover()
+
+        Returns
+        -------
+        None.
+
+        '''
         #PRETURN
         if len(self.played.cards) < 2:
             self.deal()
@@ -255,6 +431,14 @@ class Game:
         self.gameover()
     
     def gameover(self):
+        '''
+        game ends if health drops to 0, or there are no cards left in the deck.
+
+        Returns
+        -------
+        None.
+
+        '''
         if self.health <= 0:
             print("Gameover!")
             print("Remaining Cards: "+str(len(self.deck.cards)+len(self.played.cards)))
