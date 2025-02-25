@@ -159,14 +159,25 @@ class Game:
         None.
 
         '''
+        
+        #playing decks
         self.deck = Deck(True)
         self.discard = Deck(False)
         self.equipment = Deck(False)
-        self.health = 20
         self.played = Deck(False)
+        self.side = Deck(False)
+        
+        #Game stats
+        self.health = 20
         self.can_run = 2
         self.can_heal = True
-        self.turn()
+        
+        #Ability checks
+        self.per_room = 3 #JH
+        self.QHON = False #QH
+        self.dmg_bonus = 0 #KH
+        
+        self.start_game()
         
     def deal(self):
         '''
@@ -177,9 +188,54 @@ class Game:
         None.
 
         '''
-        while len(self.played.cards) < 4 and len(self.deck.cards) > 0:
+        while len(self.played.cards) <= self.per_room and len(self.deck.cards) > 0:
             self.can_heal = True
             self.played.cards.append(self.deck.cards.pop(0))
+        
+    def start_game(self):
+        
+        #Heart abilities
+        usr = input("Input which heart card you'd like to bring (J, Q, K, A)\nOr enter nothing to go without a heart.\n").lower()
+        if usr == "j":
+            self.per_room = 4
+            print("J♥, The Adventurer:\nDiscover one additional card per room.")
+        elif usr == "q":
+            self.QHON = True
+            print("Q♥, The Guardian:\nBlock a strong monster with no reprecussion other than your steel.")
+            print("Breaks current equipment at the expense of blocking high power damage.")
+        elif usr == "k":
+            self.dmg_bonus = 2
+            print("K♥, The Berserk:\nRunning was never an option for those with strength.")
+            print("+2 damage bonus applies to all equipment, but ability to run is removed.")
+        elif usr == "a":
+            print("A♥, The Survivor:\nEnduring the path of the Ace is lonely, but for it,\nyou are granted the power of unlimited life.")
+            print("The A♥ is added to the deck at the cost of jokers. Additionally, the A♥ can heal past 20.")
+            lyst  = []
+            for card in self.deck.cards:
+                if card.value != 15:
+                    lyst.append(card)
+            lyst.append(Card(14, "♥"))
+            self.deck.cards = lyst
+            self.deck.shuffle()
+        
+        #Diamond abilities
+        usr = input("Input which card you'd like to bring (J, Q, K, A)\nOr enter nothing to go without a soul.\n").lower()
+        if usr == "j":
+            print("J♦, The Cartographer:\nEscape a tough spot at will.\nReshuffle the deck.")
+            self.side.cards.append(Card(11,"♦"))
+        elif usr == "q":
+            print("Q♦, The Blacksmith:\nResharpen your blade.\nClear all attached cards off an equipment.")
+            self.side.cards.append(Card(12,"♦"))
+        elif usr == "k":
+            print("K♦, The Duelist:\nDestroy a foe with your overwhelming experience with the blade.")
+            self.side.cards.append(Card(13,"♦"))
+        elif usr == "a":
+            print("A♦, The Dungeon Master:\nEnduring the path of the Ace is dangerous, but for it,\nyou are granted the power of unlimited power.")
+            print("Equip the A♦ at any point, but healing is impossible while wielding its power.")
+            self.side.cards.append(Card(14,"♦"))
+                    
+        
+        self.turn()
     
     def __str__(self):
         '''
@@ -191,9 +247,10 @@ class Game:
             formatted string representation of a current turn.
 
         '''
-        return "Cards remaining in Deck: "+str(len(self.deck.cards))+"          Health: "+str(self.health)+"\n\
-           ..... "+str(self.played)+" .....\n\
-             .......... "+str(self.equipment)+" .........."
+        return "Deck: "+str(len(self.deck.cards))+"                     Health: "+str(self.health)+"\n\
+        ..... "+str(self.played)+" .....\n\
+          .......... "+str(self.equipment)+" ..........\n"+\
+             "Side Board: "+str(self.side)+""
     
     def translate(self, inp):
         '''
@@ -264,10 +321,14 @@ class Game:
         None.
 
         '''
-        self.health += val
-        if self.health > 20:
-            self.health = 20
+        cur_val = val
+        while cur_val > 0:
+            if self.health < 20 or val == 14:
+                self.health += 1
+            cur_val -= 1
         self.can_heal = False
+        if val == 14:
+            print("Invoked the power of the A♥! health restored.")
         print("Healed to "+str(self.health)+" health")
         
     def equip(self, equipped):
@@ -339,8 +400,8 @@ class Game:
             bare_handed = input("Fight bare handed? (y/n): ").lower()
             if bare_handed != "y":
                 if len(self.equipment.cards[0].attached) > 0:
-                    if self.equipment.cards[0].attached[-1].value > self.equipment.cards[0].value:
-                        if mob.value > self.equipment.cards[0].value:
+                    if self.equipment.cards[0].attached[-1].value > self.equipment.cards[0].value + self.dmg_bonus:
+                        if mob.value > self.equipment.cards[0].value + self.dmg_bonus:
                             print("Weapon broke!")
                             print("Took "+str(mob.value)+" dmg!")
                             self.discard.cards.append(self.equipment.cards.pop(0))
@@ -358,10 +419,14 @@ class Game:
                             self.equipment.cards[0].attached.append(Card(mob.value,mob.suit))
                             print("Successfully Slain!")
                 else:
-                    if mob.value > self.equipment.cards[0].value:
-                        print("Took "+str(mob.value - self.equipment.cards[0].value)+" dmg!")
-                        self.health -= (mob.value - self.equipment.cards[0].value)
-                        self.equipment.cards[0].attached.append(Card(mob.value,mob.suit))
+                    if mob.value > self.equipment.cards[0].value + self.dmg_bonus:
+                        if self.QHON:
+                            print("Q♥ defends! Your weapon breaks, but you are safe.")
+                            self.discard.cards.append(self.equipment.cards.pop(0))
+                        else:
+                            print("Took "+str(mob.value - (self.equipment.cards[0].value + self.dmg_bonus))+" dmg!")
+                            self.health -= (mob.value - (self.equipment.cards[0].value + self.dmg_bonus))
+                            self.equipment.cards[0].attached.append(Card(mob.value,mob.suit))
                     else:
                         self.equipment.cards[0].attached.append(Card(mob.value,mob.suit))
                         print("Successfully Slain!")
@@ -391,12 +456,13 @@ class Game:
         print(self)
         
         #RUN
-        if self.can_run > 1 and len(self.played.cards) == 4:
+        if self.can_run > 1 and len(self.played.cards) == self.per_room + 1:
             run = input("Do you want to run? (y/n): ").lower()
             if run == 'y':
                 self.run()
                 self.can_run = 0
                 print(self)
+        
         
         #MOVE
         card_move = self.translate(input("Input move: "))
