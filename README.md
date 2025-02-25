@@ -37,3 +37,16 @@ The abilities are the following:
 > Queen of Hearts, gain the ability to block strong enemies and take no damage, however equipment is broken in the process.
 > King of Hearts, Deal two additional damage, but lose the ability to run.
 > Ace of Hearts, The card is added to the deck as a 15 valued heal with the ability to go past 20 health, however the joker cards are removed.
+> Jack of Diamonds, reshuffle the dungeon.
+> Queen of Diamonds, Clear attached cards from current equipment.
+> King of Diamonds, Destroy one card that has been played.
+> Ace of Diamonds, equip the Ace of Diamonds equipment.
+
+-- Future Updates --
+I plan to add a GUI including a title page with player stats.
+I plan to add achievements that unlock the ability cards naturally during play.
+I plan to add a method to save the game.
+I plan to add a way to restart a dungeon.
+I plan to add a method of looping a run (like many roguelikes)
+I plan to add a rules page in the game.
+I plan to clean the spaghetti code this game runs on.
