@@ -321,15 +321,18 @@ class Game:
         None.
 
         '''
-        cur_val = val
-        while cur_val > 0:
-            if self.health < 20 or val == 14:
-                self.health += 1
-            cur_val -= 1
-        self.can_heal = False
-        if val == 14:
-            print("Invoked the power of the A♥! health restored.")
-        print("Healed to "+str(self.health)+" health")
+        if not (str(self.equipment.cards[0]) == "A♦"):
+            cur_val = val
+            while cur_val > 0:
+                if self.health < 20 or val == 14:
+                    self.health += 1
+                cur_val -= 1
+            self.can_heal = False
+            if val == 14:
+                print("Invoked the power of the A♥! health restored.")
+            print("Healed to "+str(self.health)+" health")
+        else:
+            print("A♦'s power blocks even the touch of healing. No health gained.")
         
     def equip(self, equipped):
         '''
@@ -473,7 +476,7 @@ class Game:
                 if test_card.value == self.played.cards[i].value:
                     self.discard.cards.append(self.played.cards.pop(i))
                     break
-        if str(Card(card_move[:-1],card_move[-1])) in str(self.played):
+        elif str(Card(card_move[:-1],card_move[-1])) in str(self.played):
             if card_move[-1] == "♥":
                 if self.can_heal:
                     self.heal(int(card_move[:-1]))
@@ -489,7 +492,37 @@ class Game:
                 if test_card.value == self.played.cards[i].value and test_card.suit == self.played.cards[i].suit:
                     self.discard.cards.append(self.played.cards.pop(i))
                     break
-                        
+        elif str(Card(card_move[:-1],card_move[-1])) in str(self.side):
+            if self.side.cards[0].value == 11:
+                print("J♦'s exploration has come in handy...\nReshuffling dungeon.")
+                for card in self.played.cards:
+                    self.deck.cards.append(card)
+                self.played.cards.clear()
+                self.deck.shuffle()
+            elif self.side.cards[0].value == 12:
+                print("Q♦ hammers out the nicks of your blade...\nAll attached cards removed.")
+                for card in self.equipment.cards[0].attached:
+                    self.discard.cards.append(card)
+                self.equipment.cards[0].attached.clear()
+            elif self.side.cards[0].value == 13:
+                print("K♦ summons its power!")
+                while True:
+                    usr = self.translate(input("Select a card to destroy (Note that Jokers cannot be defeated): "))
+                    flag = False
+                    for i, card in enumerate(self.played.cards):
+                        if str(Card(usr[:-1],usr[-1])) == str(card):
+                            print(str(card)+" obliterated!")
+                            self.discard.cards.append(self.played.cards.pop(i))
+                            flag = True
+                            break
+                    if flag:
+                        break
+                    print("Card not listed. Input in the same way you would ordinarily select a card.")
+            elif self.side.cards[0].value == 14:
+                print("Invoked the power of the A♦!")
+                self.equip(self.side.cards[0])
+
+            self.discard.cards.append(self.side.cards.pop(0))
                 
                 
         #ENDTURN
