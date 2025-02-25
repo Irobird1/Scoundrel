@@ -29,3 +29,11 @@ Lastly, the player may choose to run from any given (full) room. If this happens
 
 -- console --
 The only interface for the game currently is the console. The only interactions will be the following: "6s" for 6 of spades as an example of a standard number card, "qc" as an example of a standard face card, "joker" for jokers, "y" for confirming a prompt, and "n" for rejecting a prompt.
+
+-- abilities --
+At the start of the game, the player receives the option to choose one heart face card, and one diamond face card. These act as abilities. Heart cards are passive abilities, whereas diamonds can be activated once during gameplay.
+The abilities are the following:
+> Jack of Hearts, reveal one additional card per room.
+> Queen of Hearts, gain the ability to block strong enemies and take no damage, however equipment is broken in the process.
+> King of Hearts, Deal two additional damage, but lose the ability to run.
+> Ace of Hearts, The card is added to the deck as a 15 valued heal with the ability to go past 20 health, however the joker cards are removed.
