@@ -46,7 +46,6 @@ The abilities are the following:
 I plan to add a GUI including a title page with player stats.
 I plan to add achievements that unlock the ability cards naturally during play.
 I plan to add a method to save the game.
-I plan to add a way to restart a dungeon.
 I plan to add a method of looping a run (like many roguelikes)
 I plan to add a rules page in the game.
 I plan to clean the spaghetti code this game runs on.
