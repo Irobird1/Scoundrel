@@ -541,6 +541,26 @@ class Game:
         if self.health <= 0:
             print("Gameover!")
             print("Remaining Cards: "+str(len(self.deck.cards)+len(self.played.cards)))
+            usr = input("Play again? (y/n): ")
+            if usr == "y":
+                #playing decks
+                self.deck = Deck(True)
+                self.discard = Deck(False)
+                self.equipment = Deck(False)
+                self.played = Deck(False)
+                self.side = Deck(False)
+                
+                #Game stats
+                self.health = 20
+                self.can_run = 2
+                self.can_heal = True
+                
+                #Ability checks
+                self.per_room = 3 #JH
+                self.QHON = False #QH
+                self.dmg_bonus = 0 #KH
+                
+                self.start_game()
         elif len(self.deck.cards)+len(self.played.cards) == 0:
             print("Victory!!!!!")
         else:
